@@ -1,0 +1,47 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Setup Android SDK
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y openjdk-17-jdk wget unzip
+          SDK_DIR=/home/runner/.buildozer/android/platform/android-sdk
+          rm -rf $SDK_DIR
+          mkdir -p $SDK_DIR/cmdline-tools
+          cd /tmp
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -q tools.zip
+          mv cmdline-tools $SDK_DIR/cmdline-tools/latest
+          cp -r $SDK_DIR/cmdline-tools/latest $SDK_DIR/cmdline-tools/tools
+          cp -r $SDK_DIR/cmdline-tools/latest $SDK_DIR/tools
+          mkdir -p $SDK_DIR/licenses
+          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $SDK_DIR/licenses/android-sdk-license
+          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $SDK_DIR/licenses/android-sdk-license
+          export JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64
+          export PATH=$PATH:$SDK_DIR/cmdline-tools/latest/bin
+          yes | sdkmanager --licenses || true
+          sdkmanager "build-tools;33.0.2" "platform-tools" "platforms;android-33"
+          pip install buildozer cython
+      - name: Build APK
+        run: |
+          SDK_DIR=/home/runner/.buildozer/android/platform/android-sdk
+          export JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64
+          export PATH=$PATH:$SDK_DIR/cmdline-tools/latest/bin:$SDK_DIR/tools/bin:$SDK_DIR/platform-tools
+          buildozer android debug
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: GestorMasterS.ILMVC-APK
+          path: bin/*.apk
