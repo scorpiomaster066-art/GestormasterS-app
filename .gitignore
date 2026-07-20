@@ -7,3 +7,9 @@ bin/
 RESPALDOS/
 ARCHIVOS_GENERADOS/
 *.db
+.env
+stable-diffusion.cpp
+*.gguf
+*.bin
+*.onnx
+MODELOS_DE_IA/
