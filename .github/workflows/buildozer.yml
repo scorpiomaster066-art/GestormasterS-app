@@ -32,15 +32,23 @@ jobs:
           pip install --upgrade pip
           pip install buildozer cython==0.29.36
 
-      - name: Accept Android SDK licenses
+      - name: Setup Android SDK
         run: |
-          mkdir -p ~/.android
-          touch ~/.android/repositories.cfg
-          yes | sdkmanager --licenses || true
+          mkdir -p ~/.buildozer/android/platform
+          cd ~/.buildozer/android/platform
+          wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip commandlinetools-linux-11076708_latest.zip
+          mkdir -p android-sdk/cmdline-tools
+          mv cmdline-tools android-sdk/cmdline-tools/latest
+          export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk
+          export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin
+          yes | sdkmanager --licenses --sdk_root=$ANDROID_SDK_ROOT
+          sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;25.2.9519653"
 
       - name: Build APK
         run: |
           export PATH=$PATH:~/.local/bin
+          export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk
           buildozer android debug
 
       - name: Upload APK
@@ -48,4 +56,3 @@ jobs:
         with:
           name: GestorMasterS-APK
           path: bin/*.apk
-
