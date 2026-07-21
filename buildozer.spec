@@ -18,3 +18,6 @@ android.accept_sdk_license_agreements = 1
 [buildozer]
 log_level = 2
 warn_on_root = 1
+
+android.sdk_path = ~/.buildozer/android/platform/android-sdk
+android.ndk_path = ~/.buildozer/android/platform/android-sdk/ndk/25.2.9519653
