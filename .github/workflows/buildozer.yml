@@ -10,38 +10,34 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-      - name: Setup Android SDK
+          
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install dependencies
         run: |
-          sudo apt-get update -y
-          sudo apt-get install -y openjdk-17-jdk wget unzip
-          SDK_DIR=/home/runner/.buildozer/android/platform/android-sdk
-          rm -rf $SDK_DIR
-          mkdir -p $SDK_DIR/cmdline-tools
-          cd /tmp
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-          unzip -q tools.zip
-          mv cmdline-tools $SDK_DIR/cmdline-tools/latest
-          cp -r $SDK_DIR/cmdline-tools/latest $SDK_DIR/cmdline-tools/tools
-          cp -r $SDK_DIR/cmdline-tools/latest $SDK_DIR/tools
-          mkdir -p $SDK_DIR/licenses
-          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $SDK_DIR/licenses/android-sdk-license
-          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $SDK_DIR/licenses/android-sdk-license
-          export JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64
-          export PATH=$PATH:$SDK_DIR/cmdline-tools/latest/bin
-          yes | sdkmanager --licenses || true
-          sdkmanager "build-tools;33.0.2" "platform-tools" "platforms;android-33"
-          pip install buildozer cython
+          sudo apt-get update
+          sudo apt-get install -y python3-pip python3-setuptools python3-dev build-essential libssl-dev libffi-dev libsqlite3-dev libbz2-dev zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libreadline-dev libffi-dev liblzma-dev lzma lzma-dev libxml2-dev libxslt1-dev openjdk-17-jdk unzip wget git autoconf libtool pkg-config libtinfo5 libncurses5
+
+      - name: Install Buildozer
+        run: |
+          pip install --upgrade pip
+          pip install buildozer cython==0.29.36
+
       - name: Build APK
         run: |
-          SDK_DIR=/home/runner/.buildozer/android/platform/android-sdk
-          export JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64
-          export PATH=$PATH:$SDK_DIR/cmdline-tools/latest/bin:$SDK_DIR/tools/bin:$SDK_DIR/platform-tools
           buildozer android debug
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: GestorMasterS.ILMVC-APK
+          name: GestorMasterS-APK
           path: bin/*.apk
