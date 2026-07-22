@@ -1,61 +1,53 @@
 name: Build APK
-
 on:
   push:
-    branches: [main]
+    branches: 
   workflow_dispatch:
-
-env:
-  ANDROID_SDK_ROOT: /home/runner/.buildozer/android/platform/android-sdk
-
 jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-
       - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-pip python3-setuptools python3-dev build-essential libssl-dev libffi-dev libsqlite3-dev libbz2-dev zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libreadline-dev libffi-dev liblzma-dev lzma lzma-dev libxml2-dev libxslt1-dev openjdk-17-jdk unzip wget git autoconf libtool pkg-config libtinfo5 libncurses5
-
-      - name: Install Buildozer
-        run: |
-          pip install --upgrade pip
-          pip install buildozer cython==0.29.36
-
       - name: Setup Android SDK
         run: |
-          mkdir -p ~/.buildozer/android/platform
-          cd ~/.buildozer/android/platform
-          wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-          unzip commandlinetools-linux-11076708_latest.zip
-          mkdir -p android-sdk/cmdline-tools
-          mv cmdline-tools android-sdk/cmdline-tools/latest
-          mkdir -p android-sdk/tools
-          ln -s ../cmdline-tools/latest/bin android-sdk/tools/bin
-          export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin
-          yes | sdkmanager --licenses --sdk_root=$ANDROID_SDK_ROOT
-          sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;25.2.9519653"
-
-      - name: Build APK
+          SDK_DIR=/home/runner/.buildozer/android/platform/android-sdk
+          rm -rf $SDK_DIR
+          mkdir -p $SDK_DIR/cmdline-tools
+          mkdir -p $SDK_DIR/licenses
+          cd /tmp
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O tools.zip
+          unzip -q tools.zip
+          mv cmdline-tools $SDK_DIR/cmdline-tools/latest
+          mkdir -p $SDK_DIR/cmdline-tools/tools/bin
+          cp -r $SDK_DIR/cmdline-tools/latest/bin/* $SDK_DIR/cmdline-tools/tools/bin/
+          mkdir -p $SDK_DIR/tools/bin
+          cp -r $SDK_DIR/cmdline-tools/latest/bin/* $SDK_DIR/tools/bin/
+          cp -r $SDK_DIR/cmdline-tools/latest/lib $SDK_DIR/tools/ || true
+          echo "8933bad61a6fa418118b81a3b1bff4a5269c55" > $SDK_DIR/licenses/android-sdk-license
+          echo "d56f51874794585ea0fb0fb78e55f4b8aaedf31a6491a5a7ab1" >> $SDK_DIR/licenses/android-sdk-license
+          echo "24333f8a68b6819c3d4a8e1c1d4a8a8a8a8" > $SDK_DIR/licenses/android-sdk-preview-license || true
+          yes | $SDK_DIR/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          $SDK_DIR/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.2" "platform-tools" "platforms;android-33" "platforms;android-34" "ndk;25.1.8937393"
+          pip install --upgrade pip
+          pip install buildozer cython==0.29.36
+      - name: Fix old Buildozer sdkmanager path
         run: |
-          export PATH=$PATH:~/.local/bin
-          buildozer android debug
-
+          SDK_DIR=/home/runner/.buildozer/android/platform/android-sdk
+          mkdir -p $SDK_DIR/tools/bin
+          cp -r $SDK_DIR/cmdline-tools/latest/bin/* $SDK_DIR/tools/bin/ || true
+          ls -l $SDK_DIR/tools/bin/sdkmanager
+      - name: Build APK
+        run: buildozer android debug
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: GestorMasterS-APK
+          name: GestorMasterS.1LMVC-APK
           path: bin/*.apk
