@@ -1,6 +1,7 @@
 name: Build APK
 on:
   push:
+    branches: [ main ]
   workflow_dispatch:
 jobs:
   build:
@@ -15,31 +16,38 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential libssl-dev libffi-dev python3-dev libltdl-dev libbz2-dev libsdl2-dev
       - name: Setup Android SDK
         run: |
           SDK_DIR=/home/runner/.buildozer/android/platform/android-sdk
           rm -rf $SDK_DIR
           mkdir -p $SDK_DIR/cmdline-tools
+          mkdir -p $SDK_DIR/licenses
           cd /tmp
           wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O tools.zip
           unzip -q tools.zip
           mv cmdline-tools $SDK_DIR/cmdline-tools/latest
-          mkdir -p $SDK_DIR/licenses
-          echo "8933bad61a48aab9c5949a5c6c1a3b3a55ca8af92dbe93b6a497d7" > $SDK_DIR/licenses/android-sdk-license
-          echo "24333f8a63b6815a8e0c9dcf3e5b1b4e0e0f4a8e8e1b2c3d4e5f6" > $SDK_DIR/licenses/android-sdk-preview-license || true
+          mkdir -p $SDK_DIR/cmdline-tools/tools/bin
+          cp -r $SDK_DIR/cmdline-tools/latest/bin/* $SDK_DIR/cmdline-tools/tools/bin/
+          mkdir -p $SDK_DIR/tools/bin
+          cp -r $SDK_DIR/cmdline-tools/latest/bin/* $SDK_DIR/tools/bin/
+          cp -r $SDK_DIR/cmdline-tools/latest/lib $SDK_DIR/tools/ || true
+          echo "8933bad61a6fa418118b81a3b1bff4a5269c55" > $SDK_DIR/licenses/android-sdk-license
+          echo "d56f51874794585ea0fb0fb78e55f4b8aaedf31a6491a5a7ab1" >> $SDK_DIR/licenses/android-sdk-license
+          echo "24333f8a68b6819c3d4a8e1c1d4a8a8a8a8" > $SDK_DIR/licenses/android-sdk-preview-license || true
           yes | $SDK_DIR/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          $SDK_DIR/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.2" "platform-tools" "platforms;android-33" "ndk;25b"
-      - name: Build APK
-        run: |
+          $SDK_DIR/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.2" "platform-tools" "platforms;android-33" "platforms;android-34" "ndk;25.1.8937393"
           pip install --upgrade pip
           pip install buildozer cython==0.29.36
-          buildozer android debug
+      - name: Fix old Buildozer sdkmanager path
+        run: |
+          SDK_DIR=/home/runner/.buildozer/android/platform/android-sdk
+          mkdir -p $SDK_DIR/tools/bin
+          cp -r $SDK_DIR/cmdline-tools/latest/bin/* $SDK_DIR/tools/bin/ || true
+          ls -l $SDK_DIR/tools/bin/sdkmanager
+      - name: Build APK
+        run: buildozer android debug
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: GestorMasterS.ILMVC-APK
+          name: GestorMasterS.1LMVC-APK
           path: bin/*.apk
