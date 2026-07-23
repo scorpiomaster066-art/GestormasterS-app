@@ -18,4 +18,4 @@ p4a.whitelist = lib-dynload,sqlite3
 [buildozer]
 log_level = 2
 warn_on_root = 0
-requirements = python3,kivy==2.3.0,kivymd,pillow,requests
+requirements = python3,kivy==2.3.0,kivymd,pillow
