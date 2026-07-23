@@ -9,29 +9,37 @@ ScreenManager:
         MDBoxLayout:
             orientation: 'vertical'
             MDTopAppBar:
-                title: "GestorMasterS"
+                title: "GestorMasterS #32 BOTONES OK"
                 pos_hint: {"top": 1}
             ScrollView:
                 MDBoxLayout:
                     orientation: 'vertical'
-                    padding: dp(15)
-                    spacing: dp(15)
+                    padding: dp(20)
+                    spacing: dp(20)
                     adaptive_height: True
                     MDLabel:
-                        text: "GestorMasterS NEGRA OK FIJA"
+                        text: "GestorMasterS NEGRA OK #32 BOTONES FIX"
                         halign: "center"
                         size_hint_y: None
                         height: self.texture_size[1]
+                        theme_text_color: "Custom"
                         text_color: 1,1,1,1
                     MDRaisedButton:
-                        text: "Boton 1"
+                        text: "Boton 1 - YA NO ENCIMADO"
                         pos_hint: {"center_x":.5}
+                        size_hint_x:.8
                     MDRaisedButton:
                         text: "Boton 2"
                         pos_hint: {"center_x":.5}
+                        size_hint_x:.8
                     MDRaisedButton:
                         text: "Boton 3"
                         pos_hint: {"center_x":.5}
+                        size_hint_x:.8
+                    MDRaisedButton:
+                        text: "Boton 4 PRUEBA SCROLL"
+                        pos_hint: {"center_x":.5}
+                        size_hint_x:.8
 '''
 
 class GestorMasterSApp(MDApp):
