@@ -2,22 +2,20 @@
 title = GestorMasterS.ILMVC
 package.name = gestormastersilmvc
 package.domain = com.scorpiomaster066
-source.dir = .
+source.dir =.
 source.include_exts = py,png,jpg,kv,atlas,db,json,txt
 version = 1.0.0
-requirements = python3,kivy,sqlite3,requests,urllib3,chardet,certifi,idna
+requirements = python3,kivy,requests,urllib3,chardet,certifi,idna
 orientation = portrait
 fullscreen = 0
 android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
 android.api = 33
 android.minapi = 21
 android.ndk = 25b
-android.build_tools_version = 33.0.2
-android.accept_sdk_license_agreements = 1
+android.accept_sdk_license_agreements = True
+p4a.bootstrap = sdl2
+p4a.whitelist = lib-dynload,sqlite3
 
 [buildozer]
 log_level = 2
-warn_on_root = 1
-
-android.sdk_path = ~/.buildozer/android/platform/android-sdk
-android.ndk_path = ~/.buildozer/android/platform/android-sdk/ndk/25.2.9519653
+warn_on_root = 0
