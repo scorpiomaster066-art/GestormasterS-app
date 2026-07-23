@@ -5,7 +5,7 @@ package.domain = com.scorpiomaster066
 source.dir =.
 source.include_exts = py,png,jpg,kv,atlas,db,json,txt
 version = 1.0.0
-requirements = python3,kivy,requests,urllib3,chardet,certifi,idna
+requirements = python3,kivy==2.3.0,kivymd,requests,urllib3,chardet,certifi,idna,pillow,plyer
 orientation = portrait
 fullscreen = 0
 android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
