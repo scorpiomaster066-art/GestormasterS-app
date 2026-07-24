@@ -13,7 +13,6 @@ android.api = 33
 android.minapi = 21
 android.ndk = 25b
 android.build_tools_version = 33.0.2
-android.accept_sdk_license_agreements = 1
 
 [buildozer]
 log_level = 2
@@ -22,8 +21,3 @@ warn_on_root = 1
 android.sdk_path = ~/.buildozer/android/platform/android-sdk
 android.ndk_path = ~/.buildozer/android/platform/android-sdk/ndk/25.2.9519653
 android.accept_sdk_license_agreement = True
-android.build_tools_version = 33.0.2
-android.api = 33
-android.accept_sdk_license_agreement = True
-android.api = 33
-android.build_tools_version = 33.0.2
