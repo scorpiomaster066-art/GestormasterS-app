@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -12,44 +11,19 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-      - name: Setup Java 17
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
-      - name: Setup Android SDK
-        run: |
-          SDK_DIR=/home/runner/.buildozer/android/platform/android-sdk
-          rm -rf $SDK_DIR
-          mkdir -p $SDK_DIR/cmdline-tools
-          mkdir -p $SDK_DIR/licenses
-          cd /tmp
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O tools.zip
-          unzip -q tools.zip
-          mv cmdline-tools $SDK_DIR/cmdline-tools/latest
-          mkdir -p $SDK_DIR/cmdline-tools/tools/bin
-          cp -r $SDK_DIR/cmdline-tools/latest/bin/* $SDK_DIR/cmdline-tools/tools/bin/
-          mkdir -p $SDK_DIR/tools/bin
-          cp -r $SDK_DIR/cmdline-tools/latest/bin/* $SDK_DIR/tools/bin/
-          echo "8933bad61a6fa418118b81a3b1ff4a5269c55" > $SDK_DIR/licenses/android-sdk-license
-          echo "d56f51874794585ea0fb0fb7e8a6783ebf3ab1" >> $SDK_DIR/licenses/android-sdk-license
-          echo "24333f8a68b6815a8c93f433d8c8a8e8c8d" > $SDK_DIR/licenses/android-sdk-preview-license || true
-          yes | $SDK_DIR/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          $SDK_DIR/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.2" "platform-tools" "platforms;android-33" "platforms;android-34" "ndk;25.1.8937393"
       - name: Install Buildozer
         run: |
           pip install --upgrade pip
-          pip install buildozer cython==0.29.36
-      - name: Fix old Buildozer sdkmanager path
-        run: |
-          SDK_DIR=/home/runner/.buildozer/android/platform/android-sdk
-          mkdir -p $SDK_DIR/tools/bin
-          cp -r $SDK_DIR/cmdline-tools/latest/bin/* $SDK_DIR/tools/bin/ || true
-          ls -l $SDK_DIR/tools/bin/sdkmanager
+          pip install buildozer cython==0.29.33
       - name: Build APK
-        run: buildozer android debug
+        run: |
+          buildozer android debug
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: GestorMasterS.1LMVC-APK
+          name: GestorMasterS-APK
           path: bin/*.apk
